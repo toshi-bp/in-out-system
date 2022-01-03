@@ -48,3 +48,10 @@ qr コード読み取りを利用した入退場管理システム
 - firebase(firestore)
 
 # 仕様
+
+# データベース構造
+
+| aa       | aa     |
+| -------- | ------ |
+| aa       | aa     |
+| broccoli | tomoki |
