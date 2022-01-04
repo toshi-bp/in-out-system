@@ -8,3 +8,5 @@ export type LoginInfo = {
   userid: string;
   email: string;
 };
+
+export type adminLogin = {};

@@ -1,7 +1,7 @@
-// 場所データ
+// 場所のマスターデータの型
 export type place = {
-  id: string;
-  buildingId: number;
+  id: number;
+  buildingName: string;
   floor: number;
-  roomId: number;
+  roomName: string;
 };
