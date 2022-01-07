@@ -37,8 +37,8 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 
 qr コード読み取りを利用した入退場管理システム
 
-authentication をユーザー側で使用するか管理者側で使用するか
-→ 管理者側で使用
+authentication はユーザー側で利用
+とりあえず管理者は firebase を見ましょう(できたら管理者用のページも作りたい)
 
 ## 使用技術
 

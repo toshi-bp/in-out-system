@@ -10,13 +10,13 @@ import {
   Typography,
 } from "@material-ui/core";
 
-const Login: NextPage = () => {
+const Register: NextPage = () => {
   return (
     <div>
-      <h1>ログインページ</h1>
+      <h1>登録ページ</h1>
       <Button variant="contained">aaa</Button>
     </div>
   );
 };
 
-export default Login;
+export default Register;
