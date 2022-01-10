@@ -17,6 +17,7 @@ import {
 } from "@material-ui/core";
 import { logout } from "../../firebase/auth";
 import { userStatus } from "../../interfaces/userStatus";
+import { place } from "../../interfaces/places";
 import { entrance } from "../../firebase/in-out";
 // import entranceModal from "../../components/entranceModal";
 
@@ -30,6 +31,12 @@ const UserHome: NextPage = () => {
   console.log("user:", currentUser);
   const handleModal = () => {
     setShowModal(!showModal);
+  };
+  const switchSide = (result: Promise<(userStatus | place)[]>) => {
+    result.then((values) => {
+      setCurrentUserStatus(values[0]);
+      setCurrentPlace(values[1]);
+    });
   };
   useEffect(() => {
     // Router.push("/");
@@ -78,6 +85,9 @@ const UserHome: NextPage = () => {
                       variant="contained"
                       onClick={() => {
                         entrance(password, currentUser, currentUserStatus);
+                        switchSide(
+                          entrance(password, currentUser, currentUserStatus)
+                        );
                       }}
                     >
                       部屋に入る

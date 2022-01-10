@@ -1,5 +1,5 @@
 import { User } from "../interfaces/login";
-import { place } from "../interfaces/places";
+import { hall, place } from "../interfaces/places";
 import {
   setDoc,
   collection,
@@ -9,6 +9,7 @@ import {
   where,
   Timestamp,
   getDocs,
+  arrayUnion,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import { userStatus } from "../interfaces/userStatus";
@@ -30,12 +31,20 @@ export const entrance = async (
       currentUser
     );
     // 場所が見つかる→true, 見つからない→false
-    if (selectedPlace) {
-      addHistory(currentUserStatus, currentUser?.displayName);
-      return selectedPlace;
+    if (selectedPlace && selectedPlace.roomName !== "廊下") {
+      console.log("not 廊下");
+      currentUserStatus = "inside";
+      const result = Promise.all([currentUserStatus, selectedPlace]).then(
+        (values) => {
+          return values;
+        }
+      );
+      return result;
     } else {
-      return false;
+      return [currentUserStatus, hall];
     }
+  } else {
+    return [currentUserStatus, hall];
   }
 };
 const getPlace = async (
@@ -43,12 +52,7 @@ const getPlace = async (
   currentUser: User | null | undefined
 ): Promise<place | undefined> => {
   if (currentUser) {
-    let selectedPlace: place = {
-      buildingName: "",
-      floor: 0,
-      roomName: "",
-      password: "",
-    };
+    let selectedPlace: place = hall;
     console.log("user is not null");
     const q = query(
       collection(db, "places"),
@@ -62,25 +66,42 @@ const getPlace = async (
     console.log(selectedPlace);
     return selectedPlace;
   } else {
-    console.log("user is null or undefined");
+    return hall;
   }
 };
 
 const addHistory = (
   currentUserStatus: userStatus,
-  usename: string | null | undefined
+  selectedPlace: place,
+  username: string | null | undefined
 ) => {
   if (currentUserStatus === "outside") {
-    toInside();
+    toInside(selectedPlace);
   } else {
     toOutside();
   }
 };
 
-const toInside = () => {
+const toInside = async (selectedPlace: place) => {
   // 入場→mapに新たなデータを追加する
+  const userId = "UajseNz0UCV8Sfp682fI";
+  const userStatus: userStatus = "inside";
+  await setDoc(
+    doc(db, "users", userId),
+    {
+      history: arrayUnion({
+        inTime: Timestamp.now(),
+        outTime: "",
+        place: selectedPlace.roomName,
+        status: userStatus,
+      }),
+    },
+    { merge: true }
+  );
 };
 
-const toOutside = () => {
-  // 退場→mapの一番下のインデックスの
+const toOutside = async () => {
+  // 退場→mapの一番下のインデックスのoutTimeのみ更新
+  // 配列を読み込んで代入した値を書き込む方式にする
+  const userStatus: userStatus = "outside";
 };

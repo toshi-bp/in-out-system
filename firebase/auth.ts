@@ -6,15 +6,24 @@ import {
   GoogleAuthProvider,
   signOut,
 } from "firebase/auth";
+import {
+  collection,
+  query,
+  where,
+  Timestamp,
+  getDocs,
+} from "firebase/firestore";
+import { db } from "./firebase";
 import { User } from "../interfaces/login";
 import Router from "next/router";
 
 const provider = new GoogleAuthProvider();
 
-export const login = (): void => {
+export const login = async () => {
   // const auth = getAuth(firebaseApp);
   const auth = getAuth(firebaseApp);
   signInWithRedirect(auth, provider);
+  // const q = query(collection(db, "users"), where(""))
 };
 
 export const logout = (): Promise<void> => {

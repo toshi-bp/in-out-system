@@ -13,8 +13,7 @@ import {
 import Router from "next/router";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/authContext";
-import { getAuth, GoogleAuthProvider, signInWithRedirect } from "firebase/auth";
-import firebaseApp from "../firebase/firebase";
+import { login } from "../firebase/auth";
 
 const Login: NextPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -23,12 +22,6 @@ const Login: NextPage = () => {
     currentUser && Router.push("/user");
   }, [currentUser]);
   console.log(currentUser);
-  const login = () => {
-    setLoading(true);
-    const auth = getAuth(firebaseApp);
-    const provider = new GoogleAuthProvider();
-    signInWithRedirect(auth, provider);
-  };
   return (
     <div>
       <Container>
