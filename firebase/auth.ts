@@ -11,6 +11,7 @@ import { User } from "../interfaces/login";
 const provider = new GoogleAuthProvider();
 
 export const login = (): void => {
+  // const auth = getAuth(firebaseApp);
   const auth = getAuth(firebaseApp);
   signInWithRedirect(auth, provider);
 };

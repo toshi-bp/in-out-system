@@ -8,3 +8,5 @@ const Admin: NextPage = () => {
     </div>
   );
 };
+
+export default Admin;
