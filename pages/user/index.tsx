@@ -122,8 +122,8 @@ const UserHome: NextPage = () => {
         setHistory(h);
       });
     };
-    getHistory();
-  }, []);
+    // getHistory();
+  }, [currentUser]);
   return (
     <div>
       <Head>
@@ -198,7 +198,7 @@ const UserHome: NextPage = () => {
             </Button>
           )}
         </Box>
-        <Box sx={{ mb: 2 }}>
+        {/* <Box sx={{ mb: 2 }}>
           <Button
             variant="contained"
             onClick={() => {
@@ -233,7 +233,7 @@ const UserHome: NextPage = () => {
               </Table>
             </TableContainer>
           </Dialog>
-        </Box>
+        </Box> */}
         <Button onClick={logout} variant="contained">
           ログアウト
         </Button>
