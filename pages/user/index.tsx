@@ -16,9 +16,11 @@ import {
   DialogTitle,
 } from "@material-ui/core";
 import { logout } from "../../firebase/auth";
-import { userStatus } from "../../interfaces/userStatus";
+import { history, userStatus } from "../../interfaces/userStatus";
 import { place } from "../../interfaces/places";
 import { entrance } from "../../firebase/in-out";
+import { collection, query, setDoc, where, getDocs } from "firebase/firestore";
+import { db } from "../../firebase/firebase";
 // import entranceModal from "../../components/entranceModal";
 
 const UserHome: NextPage = () => {
@@ -32,11 +34,25 @@ const UserHome: NextPage = () => {
   const handleModal = () => {
     setShowModal(!showModal);
   };
-  const switchSide = (result: Promise<(userStatus | place)[]>) => {
-    result.then((values) => {
-      setCurrentUserStatus(values[0]);
-      setCurrentPlace(values[1]);
-    });
+  const switchSide = async () => {
+    console.log(currentUserStatus);
+    if (currentUserStatus === "outside") {
+      console.log("aaa");
+      let history: history = [];
+      const q = query(
+        collection(db, "users"),
+        where("displayName", "==", currentUser?.displayName)
+      );
+      const querySnapshot = await getDocs(q);
+      await querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        const d = doc.data();
+        history = d.history;
+        console.log(history);
+      });
+      await setCurrentUserStatus("inside");
+      await setCurrentPlace(history[history.length - 1].place);
+    }
   };
   useEffect(() => {
     // Router.push("/");
@@ -85,9 +101,8 @@ const UserHome: NextPage = () => {
                       variant="contained"
                       onClick={() => {
                         entrance(password, currentUser, currentUserStatus);
-                        switchSide(
-                          entrance(password, currentUser, currentUserStatus)
-                        );
+                        switchSide();
+                        handleModal();
                       }}
                     >
                       部屋に入る

@@ -30,16 +30,16 @@ export const entrance = async (
       password,
       currentUser
     );
+    console.log(selectedPlace);
     // 場所が見つかる→true, 見つからない→false
     if (selectedPlace && selectedPlace.roomName !== "廊下") {
       console.log("not 廊下");
-      currentUserStatus = "inside";
-      const result = Promise.all([currentUserStatus, selectedPlace]).then(
-        (values) => {
-          return values;
-        }
+      await addHistory(
+        currentUserStatus,
+        selectedPlace,
+        currentUser.displayName
       );
-      return result;
+      return;
     } else {
       return [currentUserStatus, hall];
     }
@@ -86,6 +86,7 @@ const toInside = async (selectedPlace: place) => {
   // 入場→mapに新たなデータを追加する
   const userId = "UajseNz0UCV8Sfp682fI";
   const userStatus: userStatus = "inside";
+  console.log("writing");
   await setDoc(
     doc(db, "users", userId),
     {
@@ -98,6 +99,7 @@ const toInside = async (selectedPlace: place) => {
     },
     { merge: true }
   );
+  return;
 };
 
 const toOutside = async () => {

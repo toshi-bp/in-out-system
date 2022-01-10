@@ -12,10 +12,10 @@ export type userStatus = "inside" | "outside";
  */
 
 export type history = {
-  place: place;
+  place: string;
   status: userStatus;
   inTime: Timestamp;
-  outTime: Timestamp | undefined;
+  outTime: Timestamp | "";
 }[];
 
 export type currentUserStatus = {
