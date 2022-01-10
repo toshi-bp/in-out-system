@@ -1,13 +1,39 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/authContext";
-import { Container } from "@material-ui/core";
+import {
+  Box,
+  Button,
+  Container,
+  FormControl,
+  TextField,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+} from "@material-ui/core";
+import { logout } from "../../firebase/auth";
+import { userStatus } from "../../interfaces/userStatus";
+import { entrance } from "../../firebase/in-out";
+// import entranceModal from "../../components/entranceModal";
 
 const UserHome: NextPage = () => {
   const { currentUser } = useContext(AuthContext);
+  const [currentPlace, setCurrentPlace] = useState<string>("廊下");
+  const [currentUserStatus, setCurrentUserStatus] =
+    useState<userStatus>("outside");
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [password, setPassword] = useState<string>("");
   console.log("user:", currentUser);
+  const handleModal = () => {
+    setShowModal(!showModal);
+  };
+  useEffect(() => {
+    // Router.push("/");
+  }, [currentUser]);
   return (
     <div>
       <Head>
@@ -16,7 +42,66 @@ const UserHome: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Container>
-        <h2>ユーザー名:{currentUser?.displayName}</h2>
+        <h2>{currentUser?.displayName}のマイページ</h2>
+        <h3>現在地:{currentPlace}</h3>
+        <Box sx={{ mb: 2 }}>
+          {currentUserStatus === "outside" && (
+            <div>
+              <Button
+                onClick={() => {
+                  setShowModal(true);
+                }}
+                variant="contained"
+              >
+                入場
+              </Button>
+              <Dialog open={showModal} onClose={handleModal}>
+                <DialogTitle>入場</DialogTitle>
+                <FormControl>
+                  <DialogContent>
+                    <DialogContentText>
+                      部屋のパスワードを入力してください
+                    </DialogContentText>
+                    <TextField
+                      autoFocus
+                      margin="dense"
+                      id="standard-basic"
+                      label="password"
+                      fullWidth
+                      variant="standard"
+                      value={password}
+                      onChange={(event) => setPassword(event.target.value)}
+                    />
+                  </DialogContent>
+                  <DialogActions>
+                    <Button
+                      variant="contained"
+                      onClick={() => {
+                        entrance(password, currentUser, currentUserStatus);
+                      }}
+                    >
+                      部屋に入る
+                    </Button>
+                    <Button variant="contained" onClick={handleModal}>
+                      閉じる
+                    </Button>
+                  </DialogActions>
+                </FormControl>
+              </Dialog>
+            </div>
+          )}
+          {currentUserStatus === "inside" && (
+            <Button onClick={logout} variant="contained">
+              出場
+            </Button>
+          )}
+        </Box>
+        <Box sx={{ mb: 2 }}>
+          <Button>行動履歴</Button>
+        </Box>
+        <Button onClick={logout} variant="contained">
+          ログアウト
+        </Button>
       </Container>
     </div>
   );

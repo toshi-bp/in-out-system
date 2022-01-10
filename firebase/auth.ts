@@ -7,6 +7,7 @@ import {
   signOut,
 } from "firebase/auth";
 import { User } from "../interfaces/login";
+import Router from "next/router";
 
 const provider = new GoogleAuthProvider();
 
@@ -22,6 +23,7 @@ export const logout = (): Promise<void> => {
     signOut(auth)
       .then(() => resolve)
       .catch((error) => reject(error));
+    Router.push("/");
   });
 };
 
