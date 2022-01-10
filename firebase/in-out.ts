@@ -12,7 +12,7 @@ import {
   arrayUnion,
 } from "firebase/firestore";
 import { db } from "./firebase";
-import { userStatus } from "../interfaces/userStatus";
+import { history, userStatus } from "../interfaces/userStatus";
 
 export const entrance = async (
   password: string,
@@ -34,11 +34,7 @@ export const entrance = async (
     // 場所が見つかる→true, 見つからない→false
     if (selectedPlace && selectedPlace.roomName !== "廊下") {
       console.log("not 廊下");
-      await addHistory(
-        currentUserStatus,
-        selectedPlace,
-        currentUser.displayName
-      );
+      await toInside(selectedPlace);
       return;
     } else {
       return [currentUserStatus, hall];
@@ -47,6 +43,14 @@ export const entrance = async (
     return [currentUserStatus, hall];
   }
 };
+
+export const exit = async (
+  currentUser: User | null | undefined,
+  history: history
+) => {
+  await toOutside(history, currentUser);
+};
+
 const getPlace = async (
   password: string,
   currentUser: User | null | undefined
@@ -70,18 +74,6 @@ const getPlace = async (
   }
 };
 
-const addHistory = (
-  currentUserStatus: userStatus,
-  selectedPlace: place,
-  username: string | null | undefined
-) => {
-  if (currentUserStatus === "outside") {
-    toInside(selectedPlace);
-  } else {
-    toOutside();
-  }
-};
-
 const toInside = async (selectedPlace: place) => {
   // 入場→mapに新たなデータを追加する
   const userId = "UajseNz0UCV8Sfp682fI";
@@ -102,8 +94,22 @@ const toInside = async (selectedPlace: place) => {
   return;
 };
 
-const toOutside = async () => {
+const toOutside = async (
+  history: history,
+  currentUser: User | null | undefined
+) => {
   // 退場→mapの一番下のインデックスのoutTimeのみ更新
   // 配列を読み込んで代入した値を書き込む方式にする
   const userStatus: userStatus = "outside";
+  const userId = "UajseNz0UCV8Sfp682fI";
+  history[history.length - 1].outTime = Timestamp.now();
+  history[history.length - 1].status = "outside";
+  console.log(history);
+  await setDoc(
+    doc(db, "users", userId),
+    {
+      history: history,
+    },
+    { merge: true }
+  );
 };

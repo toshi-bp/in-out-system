@@ -14,11 +14,18 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  TableContainer,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  Paper,
+  TableBody,
 } from "@material-ui/core";
 import { logout } from "../../firebase/auth";
 import { history, userStatus } from "../../interfaces/userStatus";
-import { place } from "../../interfaces/places";
-import { entrance } from "../../firebase/in-out";
+import { hall, place } from "../../interfaces/places";
+import { entrance, exit } from "../../firebase/in-out";
 import { collection, query, setDoc, where, getDocs } from "firebase/firestore";
 import { db } from "../../firebase/firebase";
 // import entranceModal from "../../components/entranceModal";
@@ -29,16 +36,23 @@ const UserHome: NextPage = () => {
   const [currentUserStatus, setCurrentUserStatus] =
     useState<userStatus>("outside");
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [showHistoryModal, setShowHistoryModal] = useState<boolean>(false);
   const [password, setPassword] = useState<string>("");
+  const [history, setHistory] = useState<history>([]);
   console.log("user:", currentUser);
+
   const handleModal = () => {
     setShowModal(!showModal);
   };
+
+  const handleHistoryModal = () => {
+    setShowHistoryModal(!showHistoryModal);
+  };
+
   const switchSide = async () => {
     console.log(currentUserStatus);
     if (currentUserStatus === "outside") {
-      console.log("aaa");
-      let history: history = [];
+      let h: history = [];
       const q = query(
         collection(db, "users"),
         where("displayName", "==", currentUser?.displayName)
@@ -47,16 +61,69 @@ const UserHome: NextPage = () => {
       await querySnapshot.forEach((doc) => {
         // doc.data() is never undefined for query doc snapshots
         const d = doc.data();
-        history = d.history;
-        console.log(history);
+        h = d.history;
+        console.log(d);
+        console.log(h);
+        setHistory(h);
       });
       await setCurrentUserStatus("inside");
-      await setCurrentPlace(history[history.length - 1].place);
+      await setCurrentPlace(h[h.length - 1].place);
+    } else {
+      setCurrentUserStatus("outside");
+      setCurrentPlace(hall.roomName);
     }
   };
+
+  const showHistory = () => {
+    console.log(history);
+    setShowHistoryModal(true);
+    return (
+      <Dialog open={showHistoryModal} onClose={handleHistoryModal}>
+        <DialogTitle>行動履歴</DialogTitle>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>行動履歴</TableCell>
+                <TableCell align="right">場所</TableCell>
+                <TableCell align="right">入場時間</TableCell>
+                <TableCell align="right">退場時間</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {history.map((h) => {
+                <TableRow>
+                  <TableCell>{h.place}</TableCell>
+                  <TableCell>{h.inTime}</TableCell>
+                  <TableCell>{h.outTime}</TableCell>
+                </TableRow>;
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Dialog>
+    );
+  };
+
   useEffect(() => {
-    // Router.push("/");
-  }, [currentUser]);
+    const getHistory = async () => {
+      let h: history = [];
+      const q = query(
+        collection(db, "users"),
+        where("displayName", "==", currentUser?.displayName)
+      );
+      const querySnapshot = await getDocs(q);
+      await querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        const d = doc.data();
+        h = d.history;
+        console.log(d);
+        console.log(h);
+        setHistory(h);
+      });
+    };
+    getHistory();
+  }, []);
   return (
     <div>
       <Head>
@@ -99,10 +166,14 @@ const UserHome: NextPage = () => {
                   <DialogActions>
                     <Button
                       variant="contained"
-                      onClick={() => {
-                        entrance(password, currentUser, currentUserStatus);
-                        switchSide();
-                        handleModal();
+                      onClick={async () => {
+                        await entrance(
+                          password,
+                          currentUser,
+                          currentUserStatus
+                        );
+                        await switchSide();
+                        await handleModal();
                       }}
                     >
                       部屋に入る
@@ -116,13 +187,52 @@ const UserHome: NextPage = () => {
             </div>
           )}
           {currentUserStatus === "inside" && (
-            <Button onClick={logout} variant="contained">
-              出場
+            <Button
+              onClick={async () => {
+                await exit(currentUser, history);
+                await switchSide();
+              }}
+              variant="contained"
+            >
+              退場
             </Button>
           )}
         </Box>
         <Box sx={{ mb: 2 }}>
-          <Button>行動履歴</Button>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setShowHistoryModal(true);
+            }}
+          >
+            行動履歴
+          </Button>
+          <Dialog open={showHistoryModal} onClose={handleHistoryModal}>
+            <DialogTitle>行動履歴</DialogTitle>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>行動履歴</TableCell>
+                    <TableCell align="right">場所</TableCell>
+                    <TableCell align="right">入場時間</TableCell>
+                    <TableCell align="right">退場時間</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {history.map((h) => {
+                    <TableRow key={h.place}>
+                      <TableCell component="th" scope="row">
+                        {h.place}
+                      </TableCell>
+                      <TableCell>{h.inTime}</TableCell>
+                      <TableCell>{h.outTime}</TableCell>
+                    </TableRow>;
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Dialog>
         </Box>
         <Button onClick={logout} variant="contained">
           ログアウト
