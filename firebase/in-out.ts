@@ -34,7 +34,7 @@ export const entrance = async (
     // 場所が見つかる→true, 見つからない→false
     if (selectedPlace && selectedPlace.roomName !== "廊下") {
       console.log("not 廊下");
-      await toInside(selectedPlace);
+      await toInside(selectedPlace, currentUser);
       return;
     } else {
       return [currentUserStatus, hall];
@@ -74,23 +74,24 @@ const getPlace = async (
   }
 };
 
-const toInside = async (selectedPlace: place) => {
+const toInside = async (selectedPlace: place, currentUser: User) => {
   // 入場→mapに新たなデータを追加する
-  const userId = "UajseNz0UCV8Sfp682fI";
+  const userId = currentUser.uid;
   const userStatus: userStatus = "inside";
-  console.log("writing");
-  await setDoc(
-    doc(db, "users", userId),
-    {
-      history: arrayUnion({
-        inTime: Timestamp.now(),
-        outTime: "",
-        place: selectedPlace.roomName,
-        status: userStatus,
-      }),
-    },
-    { merge: true }
-  );
+  if (userId) {
+    await setDoc(
+      doc(db, "users", userId),
+      {
+        history: arrayUnion({
+          inTime: Timestamp.now(),
+          outTime: "",
+          place: selectedPlace.roomName,
+          status: userStatus,
+        }),
+      },
+      { merge: true }
+    );
+  }
   return;
 };
 
@@ -101,15 +102,17 @@ const toOutside = async (
   // 退場→mapの一番下のインデックスのoutTimeのみ更新
   // 配列を読み込んで代入した値を書き込む方式にする
   const userStatus: userStatus = "outside";
-  const userId = "UajseNz0UCV8Sfp682fI";
+  const userId = currentUser?.uid;
   history[history.length - 1].outTime = Timestamp.now();
   history[history.length - 1].status = "outside";
   console.log(history);
-  await setDoc(
-    doc(db, "users", userId),
-    {
-      history: history,
-    },
-    { merge: true }
-  );
+  if (userId) {
+    await setDoc(
+      doc(db, "users", userId),
+      {
+        history: history,
+      },
+      { merge: true }
+    );
+  }
 };

@@ -6,6 +6,7 @@ export type LoginState = "login" | "logout" | "";
 export type User = {
   displayName: string | null | undefined;
   email: string | null | undefined;
+  uid: string | null | undefined;
 };
 
 export type adminLogin = {};
