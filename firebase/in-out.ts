@@ -30,10 +30,8 @@ export const entrance = async (
       password,
       currentUser
     );
-    console.log(selectedPlace);
     // 場所が見つかる→true, 見つからない→false
     if (selectedPlace && selectedPlace.roomName !== "廊下") {
-      console.log("not 廊下");
       await toInside(selectedPlace, currentUser);
       return;
     } else {
@@ -57,7 +55,6 @@ const getPlace = async (
 ): Promise<place | undefined> => {
   if (currentUser) {
     let selectedPlace: place = hall;
-    console.log("user is not null");
     const q = query(
       collection(db, "places"),
       where("password", "==", password)
@@ -65,9 +62,7 @@ const getPlace = async (
     const querySnapshot = await getDocs(q);
     await querySnapshot.forEach((doc) => {
       selectedPlace = doc.data() as place;
-      console.log(selectedPlace);
     });
-    console.log(selectedPlace);
     return selectedPlace;
   } else {
     return hall;
@@ -105,7 +100,6 @@ const toOutside = async (
   const userId = currentUser?.uid;
   history[history.length - 1].outTime = Timestamp.now();
   history[history.length - 1].status = "outside";
-  console.log(history);
   if (userId) {
     await setDoc(
       doc(db, "users", userId),

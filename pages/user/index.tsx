@@ -39,7 +39,6 @@ const UserHome: NextPage = () => {
   const [showHistoryModal, setShowHistoryModal] = useState<boolean>(false);
   const [password, setPassword] = useState<string>("");
   const [history, setHistory] = useState<history>([]);
-  console.log("user:", currentUser);
 
   const handleModal = () => {
     setShowModal(!showModal);
@@ -50,7 +49,6 @@ const UserHome: NextPage = () => {
   };
 
   const switchSide = async () => {
-    console.log(currentUserStatus);
     if (currentUserStatus === "outside") {
       let h: history = [];
       const q = query(
@@ -62,8 +60,6 @@ const UserHome: NextPage = () => {
         // doc.data() is never undefined for query doc snapshots
         const d = doc.data();
         h = d.history;
-        console.log(d);
-        console.log(h);
         setHistory(h);
       });
       await setCurrentUserStatus("inside");
@@ -75,7 +71,6 @@ const UserHome: NextPage = () => {
   };
 
   const showHistory = () => {
-    console.log(history);
     setShowHistoryModal(true);
     return (
       <Dialog open={showHistoryModal} onClose={handleHistoryModal}>
@@ -117,8 +112,6 @@ const UserHome: NextPage = () => {
         // doc.data() is never undefined for query doc snapshots
         const d = doc.data();
         h = d.history;
-        console.log(d);
-        console.log(h);
         setHistory(h);
       });
     };

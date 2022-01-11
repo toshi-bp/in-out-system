@@ -55,7 +55,6 @@ export const onAuthStateChanged = (callback: (user: User | null) => void) => {
     if (userInfo?.uid) {
       const docRef = doc(db, "users", userInfo?.uid);
       const userDoc = await getDoc(docRef);
-      console.log("new document");
       if (!userDoc.exists()) {
         await setDoc(
           doc(db, "users", userInfo?.uid),

@@ -21,7 +21,6 @@ const Login: NextPage = () => {
   useEffect(() => {
     currentUser && Router.push("/user");
   }, [currentUser]);
-  console.log(currentUser);
   return (
     <div>
       <Container>
