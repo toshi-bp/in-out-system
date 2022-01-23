@@ -1,4 +1,4 @@
-// 場所のマスターデータの型
+// 場所データの型
 export type place = {
   buildingName: string;
   floor: number;
