@@ -50,11 +50,3 @@ authentication はユーザー側で利用
 
 - firebase(firestore)
 
-# 仕様
-
-# データベース構造
-
-| aa       | aa     |
-| -------- | ------ |
-| aa       | aa     |
-| broccoli | tomoki |
